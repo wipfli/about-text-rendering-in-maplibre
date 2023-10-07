@@ -48,7 +48,7 @@ Note that a language can be written using one or more scripts, and a script can 
 
 * The English language is written in the Latin script.
 * The Japanese language is written in 3 scripts: Kanji, Hiragana, and Katakana.
-* The Devanagari script is used by the languages Hindi, Marathi, Sanskrit, and many more.
+* The Devanagari script is used in the languages Hindi, Marathi, Sanskrit, and many more.
 
 #### Direction
 
@@ -73,7 +73,7 @@ Text shaping is the process of turning an input string into a series of position
 
 Shaping only works if the above properties are the same across the entire input string.
 
-To get an intuition for what shaping means, let us look a some examples.
+To get an intuition for what shaping means, let us look at some examples.
 
 #### Example 1:  A One-to-One Font
 
@@ -85,7 +85,7 @@ The first example is a most basic font. It contains 3 glyphs and supports the 3 
 
 #### Example 2: Kerning
 
-Our second font contains two glyphs and supports two input Unicode codepoints: U+0041 (A) and U+0056 (V). There is a one-to-one mapping from Unicode codepoints to glyphs in the font, but something special happens if "A" is followed by "V" – the "V" move a bit back and vertically overlaps with the "A". This is called kerning.
+Our second font contains two glyphs and supports two input Unicode codepoints: U+0041 (A) and U+0056 (V). There is a one-to-one mapping from Unicode codepoints to glyphs in the font, but something special happens if "A" is followed by "V" – the "V" moves a bit back and vertically overlaps with the "A". This is called kerning.
 
 <img src="font-2.svg">
 
@@ -97,11 +97,11 @@ In the third example, the font file contains three glyphs but only supports two 
 
 <img src="font-3.svg">
 
-<i>Font example 3: Ligature. If an "f" is followed by an "i", a special glyph should be used wherethe "f" seems to eat the dot of the "i".</i>
+<i>Font example 3: Ligature. If an "f" is followed by an "i", a special glyph should be used where the "f" seems to eat the dot of the "i".</i>
 
 #### Example 4: ñ
 
-In next example, we look at a font which has only a single glyph but three Unicode codepoints map to this glyph: U+00F1 (ñ) and [U+0064 (n), U+0303 (~)]. So in this font, different Unicode codepoint combinations map to the same glyph, i.e., they give the same visual result.
+In the next example, we look at a font which has only a single glyph but three Unicode codepoints map to this glyph: U+00F1 (ñ) and [U+0064 (n), U+0303 (~)]. So in this font, different Unicode codepoint combinations map to the same glyph, i.e., they give the same visual result.
 
 <img src="font-4.svg">
 
@@ -136,7 +136,7 @@ When shaping this with text direction left-to-right, the output will be "1 2". B
 
 ### Segmentation
 
-As we have seen above, shaping only works if the language, script, and direction are correctly set. If a text block contains multiple parts in different scripts/languages/directions, the block has to be segmented first into what are call "runs" of constant script/language/direction. Also the font and variation settings have to be constant within a run.
+As we have seen above, shaping only works if the language, script, and direction are correctly set. If a text block contains multiple parts in different scripts/languages/directions, the block has to be segmented first into what are called "runs" of constant script/language/direction. Also the font and variation settings have to be constant within a run.
 
 Segmentation starts by cutting the text block into runs of constant direction using the Unicode bidirectional algorithm. The resulting segments are called "bidi runs".
 
@@ -212,7 +212,7 @@ The one-to-one mapping from Unicode codepoint to glyph id works reasonably well 
 
 MapLibre has support for Arabic and Hebrew, both of which are right-to-left (RTL) scripts, via the use of a plugin. The plugin runs the Unicode bidirectional algorithm on input strings and creates bidi runs. The order of codepoints in right-to-left runs is simply reversed before the runs are handed over for further processing and rendering.
 
-Arabic uses different glyphs for the same codepoint depending on where the codepoint appears within a word (inital form, medial form, final form, or isolated form). Usually, this behavior would be encoded in the rules of a font, but Unicode also has some special deprecated codepoints for the different forms of Arabic letters.
+Arabic uses different glyphs for the same codepoint depending on where the codepoint appears within a word (initial form, medial form, final form, or isolated form). Usually, this behavior would be encoded in the rules of a font, but Unicode also has some special deprecated codepoints for the different forms of Arabic letters.
 
 The plugin replaces Arabic codepoints with the deprecated special codepoints of the different forms.
 
@@ -232,7 +232,7 @@ There are two main aspects to consider: SDFs and the one-to-one mapping from cod
 
 #### Improvements of SDFs
 
-Let's first talk about SDFs. While SDF glyphs are indeed useful for fast scaling, rotation, and tilting one might ask the question do maps really need glyphs that are scaled/rotated/tilted at 60 frames per second? Or would it not also be enough to only have upright text that gets resized at a much lower rate allowing the usage of regular vector glyph rasterization?
+Let's first talk about SDFs. While SDF glyphs are indeed useful for fast scaling, rotation, and tilting one might ask the question, do maps really need glyphs that are scaled/rotated/tilted at 60 frames per second? Or would it not also be enough to only have upright text that gets resized at a much lower rate allowing the usage of regular vector glyph rasterization?
 
 If the SDF method was replaced with regular vector glyph rasterization on the client, users could just download the smaller vector glyphs and benefit from smaller download sizes. Whether this also leads to faster map load times depends on the internet connection speed and the computational power of the end user device that does the rasterization.
 
@@ -242,13 +242,13 @@ If one wants to keep SDFs for glyph display, one could still consider generating
 
 #### Introduce Shaping
 
-The SDF approach has maybe visual deficiencies and is maybe not optimal for today's hardware, but one can argue that it works well enough. A much more problematic design decision is the one-to-one mapping between glyphs and codepoints. It means that MapLibre has no path forward for introducing support for many Indic and South-East Asian scripts such as Devanagari, Burmese, or Khmer.
+The SDF approach has some visual deficiencies and is maybe not optimal for today's hardware, but one can argue that it works well enough. A much more problematic design decision is the one-to-one mapping between glyphs and codepoints. It means that MapLibre has no path forward for introducing support for many Indic and South-East Asian scripts such as Devanagari, Burmese, or Khmer.
 
 Modern browsers are extremely good at text rendering and one might ask why does MapLibre not harness more of the browser's capabilities for text rendering? In principle, it should be possible that MapLibre gives the browser a string and gets back a sequence of positioned glyphs that point to system fonts. This is however not possible because of privacy concerns. If something like this was allowed, malicious websites could use system fonts for fingerprinting.
 
-Given this limitation, MapLibre almost certainly needs to make use of a shaping engine such as Harfbuzz if it wants to support Indic and South-East Asian scripts. Also, the identity between glyph id and Unicode codepoint needs to be abanndoned.
+Given this limitation, MapLibre almost certainly needs to make use of a shaping engine such as Harfbuzz if it wants to support Indic and South-East Asian scripts. Also, the identity between glyph id and Unicode codepoint needs to be abandoned.
 
-In MapLibre Native, Harfbuzz can be used directly because it is a C++ library. In MapLibre GL JS on the other hand, Harfbuzz needs to be compiled to WebAssembly leading to additional complications for users. But it should be possible to do it. The toolkit size will increase by several hundreds of kB but this penality can be acceptable to users whos languages cannot be rendered today.
+In MapLibre Native, Harfbuzz can be used directly because it is a C++ library. In MapLibre GL JS on the other hand, Harfbuzz needs to be compiled to WebAssembly leading to additional complications for users. But it should be possible to do it. The toolkit size will increase by several hundreds of kB but this penalty can be acceptable to users whose languages cannot be rendered today.
 
 But as we have seen above in the discussion of a general purpose text rendering system, shaping alone is not sufficient. We also need segmentation.
 
