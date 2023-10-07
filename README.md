@@ -2,6 +2,8 @@
 
 This document describes how text rendering works in MapLibre. It has two parts: First, some high level concepts of a general purpose text rendering system are introduced. Browsers, word processors, operating systems and other applications are examples which probably operate like this. Second, we have a closer look at how MapLibre renders text. MapLibre has different constraints and requirements than most general purpose text rendering systems and has therefore its own set of limitations which we shall discuss.
 
+**Contributing**: You are welcome to contribute to this document. Just open an Issue or Pull Request if you find something...
+
 ## General Purpose Text Rendering Systems
 
 In the following section we shall outline how a general purpose text rendering system such as a web browser, word processor, or operating system works.
