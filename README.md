@@ -14,23 +14,19 @@ At a high level, text rendering can be divided in three stages:
 
 Let us start with some basic text rendering definitions which will help us to better understand the different stages.
 
-### Unicode codepoint
+#### Unicode codepoint
 
 A Unicode codepoint is a number which represents a letter, a digit, an exclamation mark or other punctuation, or many other things that can appear in text. Unicode codepoints are usually prefixed with “U+”, for example U+0041 is the letter "A" of the Latin alphabet (0x41 is 65 in decimal, which lines up with the ASCII definition of "A"). Text is stored as Unicode codepoints.
 
-### Character / Letter
-
-The concepts character and letter do not really have a clear definition in text rendering. This is probably because different languages and writing systems have different concepts of what a character and letter actually means.
-
-### Glyph
+#### Glyph
 
 A glyph is the geometrical representation of the outline of a letter, part of a letter, or any other visual element that is contained in a font. Glyphs are usually stored as vector geometries in the form of Bezier curves.
 
-### Font File
+#### Font File
 
 A font file contains glyphs and rules. The glyphs hold the geometries. The rules describe how Unicode codepoints map to glyphs. While a simple font might have a one-to-one mapping between codepoints and glyphs, more interesting things can happen as we will show later with some examples.
 
-### Positioned Glyph
+#### Positioned Glyph
 
 A positioned glyph explains where to put a glyph from a font file relative to the last glyph which was positioned. It contains 5 numbers:
 
@@ -40,33 +36,33 @@ A positioned glyph explains where to put a glyph from a font file relative to th
 * Offset X: How much the glyph should be moved horizontally relative to the last positioned glyph
 * Offset Y: How much the glyph should be move vertically relative to the last positioned glyph
 
-### Language
+#### Language
 
 The language is just the language in which a text is written in. Examples: German, French, Hindi.
 
-### Script
+#### Script
 
-The script is related to the writing system a text is written in. Examples: Latin, Greek, Devanagari.
+The script is the writing system a text is written in. Examples: Latin, Greek, Devanagari.
 
 Note that a language can be written using one or more scripts, and a script can be used by one or more languages. Examples:
 
 * The English language is written in the Latin script.
-* The Japanese language is written in 3 scripts: ???, ???, ???.
-* The Devanagari script is used by the Hindi language and the Marathi language.
+* The Japanese language is written in 3 scripts: Kanji, Hiragana, and Katakana.
+* The Devanagari script is used by the languages Hindi, Marathi, Sanskrit, and many more.
 
-### Direction
+#### Direction
 
 The text direction is the direction in which text is written with the two most common directions being left-to-right (e.g. Latin, Greek), and right-to-left (e.g. Arabic, Hebrew). 
 
 The codepoints in a string always have logical order, meaning that the first letter of a word comes before the second letter of a word.
 
-### Variation Settings
+#### Variation Settings
 
 A font can support multiple variation settings. One example is the font weight, i.e., how thick letters appear.
 
-With this overview of definitions, let’s have a closer look now at what shaping is, and then we will look into segmentation (the first stage) and rasterization (the third stage).
+With this overview of definitions, let us now have a closer look at what shaping is (the second stage), and then we will look into segmentation (the first stage) and rasterization (the third stage).
 
-## Shaping
+### Shaping
 
 Text shaping is the process of turning an input string into a series of positioned glyphs. For this, a shaping engine reads the rules of a font file and applies them to the input string. For a given font and input string, shaping requires knowledge of the following points:
 
@@ -75,37 +71,35 @@ Text shaping is the process of turning an input string into a series of position
 * Direction
 * Variation Settings
 
-Shaping only works if the above points are the same across the entire input string.
+Shaping only works if the above properties are the same across the entire input string.
 
-To get an intuition for what shaping means, let’s look a some examples.
+To get an intuition for what shaping means, let us look a some examples.
 
-### Example 1:  A one-to-one font
+#### Example 1:  A One-to-One Font
 
-The first example is a most basic font. It contains 3 glyphs and the rules are such that input Unicode codepoints map one-to-one to the glyphs.
-
-This font only supports 3 Unicode codepoints: U+0041 (A), U+0042 (B), U+0043 (C).
+The first example is a most basic font. It contains 3 glyphs and supports the 3 Unicode codepoints U+0041 (A), U+0042 (B), U+0043 (C) as input. The rules are that every codepoint maps to one and only one glyph.
 
 <img src="font-1.svg">
 
 <i>Font example 1: a one-to-one font. The font has 3 glyphs and they map to 3 different input codepoints.</i>
 
-### Example 2: Kerning
+#### Example 2: Kerning
 
-Our second font contains two glyphs and supports two input Unicode codepoints: U+0041 (A) and U+0056 (V). There is a one-to-one mapping from Unicode codepoints to glyphs in the font, but something special happens if A is followed by V – the V move a bit back and vertically overlaps with the A. This is called kerning.
+Our second font contains two glyphs and supports two input Unicode codepoints: U+0041 (A) and U+0056 (V). There is a one-to-one mapping from Unicode codepoints to glyphs in the font, but something special happens if "A" is followed by "V" – the "V" move a bit back and vertically overlaps with the "A". This is called kerning.
 
 <img src="font-2.svg">
 
 <i>Font example 2: Kerning. If an "A" is followed by a "V", the "V" gets shifted back a little bit.</i>
 
-### Example 3: Ligature
+#### Example 3: Ligature
 
-In the third example, the font file contains three glyphs but only supports two input Unicode codepoints: U+0066 (f) and U+0069 (i). In this font, there is no one-to-one mapping from Unicode codepoint to glyph id. That is because something special happens when the “f” is followed by an “i” – the f eats the dot of the i – and the font says that glyphs 3 should be used if the input is [U+0066,U+0069]. This is called a ligature. 
+In the third example, the font file contains three glyphs but only supports two input Unicode codepoints: U+0066 (f) and U+0069 (i). In this font, there is no one-to-one mapping from Unicode codepoint to glyph id. That is because something special happens when the “f” is followed by an “i” – the "f" eats the dot of the "i" – and the font rules say that a special glyph should be used if the input is [U+0066 (f), U+0069 (i)]. This is called a ligature. 
 
 <img src="font-3.svg">
 
-<i>Font example 3: Ligature. If an "f" is followed by an "i", the two codepoints together map to one glyph where the "f" seems to eat the dot of the "i".</i>
+<i>Font example 3: Ligature. If an "f" is followed by an "i", a special glyph should be used wherethe "f" seems to eat the dot of the "i".</i>
 
-### Example 4: ñ
+#### Example 4: ñ
 
 In next example, we look at a font which has only a single glyph but three Unicode codepoints map to this glyph: U+00F1 (ñ) and [U+0064 (n), U+0303 (~)]. So in this font, different Unicode codepoint combinations map to the same glyph, i.e., they give the same visual result.
 
@@ -114,7 +108,7 @@ In next example, we look at a font which has only a single glyph but three Unico
 <i>Font example 4: ñ. The letter "ñ" can either be stored as a single codepoint U+00F1, or as a sequence of two codepoints U+0064 which is the lowercase Latin "n" and U+0303 which is a wiggle.</i>
 
 
-### Example 5: Language Matters
+#### Example 5: Language Matters
 
 Language matters in text shaping because some Unicode codepoints look different in different languages. This is in particular the case in some Chinese, Japanese, and Korean (CJK) scripts where a codepoint can represent a full word. In the example font here we use two different glyphs for Japanese and Korean for the same codepoint U+5203 which means "knife edge".
 
@@ -123,15 +117,15 @@ Language matters in text shaping because some Unicode codepoints look different 
 <i>Font example 5: Language matters. Some CJK codepoints have different glyphs depending on the language. Here shown is U+5203 (knife edge) which looks different in Japanese and Korean.</i>
 
 
-### Example 6: Direction Matters
+#### Example 6: Direction Matters
 
 The text direction matters for shaping. Consider this example Unicode sequence:
 
-U+0031 (1), U+0032 (2), U+0020 (space), U+0033 (3), U+0034 (4)
+[U+0031 (1), U+0032 (2), U+0020 (space), U+0033 (3), U+0034 (4)]
 
-When shaping this with text direction left-to-right, the output will be "12 34". But when shaping it with text direction right-to-left, the output will be "34 12".
+When shaping this with text direction left-to-right, the output will be "12 34". But when shaping it with text direction right-to-left, the output will be "34 12". At least this is what will happen if the script and language are set to Arabic in the right-to-left version because in Arabic, numbers are written left-to-right but they are listed from right to left.
 
-### Example 7: Script Matters
+#### Example 7: Script Matters
 
 The script matters for text shaping because if the script is set incorrectly, shaping will not produce correct results.
 
@@ -139,7 +133,7 @@ Consider for example the Arabic word "..." which means "books". Shaped with the 
 
 ADD IMAGE
 
-## Segmentation
+### Segmentation
 
 As we have seen above, shaping only works if the language, script, and direction are correctly set. If a text block contains multiple parts in different scripts/languages/directions, the block has to be segmented first into what are call "runs" of constant script/language/direction. Also the font and variation settings have to be constant within a run.
 
@@ -153,7 +147,7 @@ Finding a font which can be used to shape a segment can be tricky. While fonts u
 
 Finally, once all text has been segmented and successfully shaped, the text has to be broken in multiple lines. The shaping engine does not have a notion of line breaks, so this has to be handled at a higher level. Hyphenation and language-specific rules play a role for line breaking.
 
-## Rasterization
+### Rasterization
 
 To display the fully positioned glyphs on a screen, the vector glyph geometries have to be rasterized. Since the glyphs are stored in a vector format, they can be arbitrarily resized, rotated, and tilted before the rasterization and the texts appears sharp at any scale.
 
