@@ -218,7 +218,7 @@ Arabic uses different glyphs for the same codepoint depending on where the codep
 
 The plugin replaces Arabic codepoints with the deprecated special codepoints of the different forms.
 
-### Chinese Japanse Korean
+### Chinese Japanese Korean
 
 The languages Chinese, Japanese, and Korean (CJK) use scripts which cover tens of thousands of Unicode codepoints. In principle, the glyphs for CJK could be included in MapLibre's big pre-generated font. But the problem is that CJK codepoints used in typical city names are widely spread in Unicode.
 
