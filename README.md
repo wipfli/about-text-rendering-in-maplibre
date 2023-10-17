@@ -183,7 +183,7 @@ MapLibre fulfills all three requirements by using a special way of glyph rasteri
 
 In a general purpose text rendering system, the vector glyphs would be rasterized to exactly the size in pixels and rotation angle which is needed. MapLibre however takes a different approach. All glyphs are rasterized beforehand to what is called a Signed Distance Field (SDF).
 
-An SDF is a small image where the pixel value represents the distance between the pixel and the nearest outline of a glyph. If a pixel happens to be inside the glyph, the value is negative and outside it is positive. Hence the name Signed Distance Field. But for text rendering, pixels inside are all treated the same, so their values are simply set to zero.
+An SDF is a small image where the pixel value represents the distance between the pixel and the nearest outline of a glyph.
 
 The Signed Distance Field technique has the following advantages:
 
@@ -242,11 +242,15 @@ Another advantage of not using SDFs is that round corners on large text could be
 
 If one wants to keep SDFs for glyph display, one could still consider generating all of them in the client. Downloading the smaller vector glyphs and turning them into SDFs in the client might be faster than downloading the bigger pre-generated SDFs.
 
+There are some alternative to SDF glyphs:
+* [Easy Scalable Text Rendering on the GPU by Evan Wallace](https://medium.com/@evanwallace/easy-scalable-text-rendering-on-the-gpu-c3f4d782c5ac)
+* [Multi-Channel Signed Distance Fields](https://github.com/Chlumsky/msdfgen)
+
 #### Introduce Shaping
 
 The SDF approach has some visual deficiencies and is maybe not optimal for today's hardware, but one can argue that it works well enough. A much more problematic design decision is the one-to-one mapping between glyphs and codepoints. It means that MapLibre has no path forward for introducing support for many Indic and South-East Asian scripts such as Devanagari, Burmese, or Khmer.
 
-Modern browsers are extremely good at text rendering and one might ask why does MapLibre not harness more of the browser's capabilities for text rendering? In principle, it should be possible that MapLibre gives the browser a string and gets back a sequence of positioned glyphs that point to system fonts. This is however not possible because of privacy concerns. If something like this was allowed, malicious websites could use system fonts for fingerprinting.
+Modern browsers are extremely good at text rendering and one might ask why does MapLibre not harness more of the browser's capabilities for text rendering? In principle, it should be possible that MapLibre gives the browser a string and gets back a sequence of positioned glyphs that point to system fonts. This is however most likely not possible because of privacy concerns. If something like this was allowed, malicious websites could use system fonts for fingerprinting.
 
 Given this limitation, MapLibre almost certainly needs to make use of a shaping engine such as Harfbuzz if it wants to support Indic and South-East Asian scripts. Also, the identity between glyph id and Unicode codepoint needs to be abandoned.
 
@@ -256,7 +260,11 @@ But as we have seen above in the discussion of a general purpose text rendering 
 
 #### Introduce Segmentation
 
-For the shaping engine to work correctly, the input text has to be segmented and MapLibre should implement a segmentation stage which creates bidi and script runs. Fortunately, there is a library called libraqm that can do this. Like Harfbuzz, Raqm is a C++ library which can be directly compiled into MapLibre Native and would need to be shipped as WebAssembly for MapLibre GL JS.
+For the shaping engine to work correctly, the input text has to be segmented and MapLibre should implement a segmentation stage which creates bidi and script runs. Fortunately, there is a library called [libraqm](https://github.com/HOST-Oman/libraqm) that can do this. Like Harfbuzz, Raqm is a C++ library which can be directly compiled into MapLibre Native and would need to be shipped as WebAssembly for MapLibre GL JS.
+
+One could also consider extracting script itemization from Raqm which is basically just one function [raqm_itemize()](https://github.com/HOST-Oman/libraqm/blob/266f63af536a38b02890529a69894b302950b677/src/raqm.c#L1711).
+
+Raqm uses [FriBiDi](https://github.com/fribidi/fribidi) to create bidi runs. FriBiDi is LGPL licensed and could therefore not be included directly in MapLibre because MapLibre needs to use dependencies with permissive licenses. But Raqm can also use [SheenBidi](https://github.com/Tehreer/SheenBidi) which has an Apache license and on Android there is [ICU](https://developer.android.com/reference/android/icu/text/Bidi) for bidirectional analysis and for JavaScript there is [bidi-js](https://github.com/lojjic/bidi-js).
 
 #### Alternatives
 
