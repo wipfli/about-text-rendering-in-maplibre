@@ -220,9 +220,9 @@ The plugin replaces Arabic codepoints with the deprecated special codepoints of 
 
 ### Chinese Japanese Korean
 
-The languages Chinese, Japanese, and Korean (CJK) use scripts which cover tens of thousands of Unicode codepoints. In principle, the glyphs for CJK could be included in MapLibre's big pre-generated font. But the problem is that CJK codepoints used in typical city names are widely spread in Unicode.
+The languages Chinese, Japanese, and Korean (CJK) use scripts which cover tens of thousands of Unicode codepoints. In principle, the glyphs for CJK could be included in MapLibre's big pre-generated font. But the problem is that CJK codepoints used in typical place names are widely spread in Unicode.
 
-For example, Tokio in Japanese is 東京都 [U+6771, U+4EAC, U+90FD] and each of these three letters is contained in a different 256 glyph long range. This means that we would need to download 3x 100 kB or so for just one map label.
+For example, Tokio in Japanese is 東京都 [U+6771, U+4EAC, U+90FD] and each of these three characters is contained in a different 256 glyph long range. This means that we would need to download 3x 100 kB or so for just one map label.
 
 Since the download size for pre-generated CJK glyphs is unacceptably large, MapLibre resorts to generating the SDFs for CJK directly in the client. This process relies on system fonts and is platform-dependent with different implementations on web, iOS, and Android. CJK is therefore also the area where MapLibre's promise of perfectly identical maps on all platforms breaks down. This tradeoff seems justified by the performance benefits of not having to download MBs of pre-generated glyphs.
 
